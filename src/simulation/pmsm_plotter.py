@@ -1,10 +1,10 @@
-# pmsm_plotter.py
+"""Plot pmsm simulation results."""
 import matplotlib.pyplot as plt
 import pandas as pd
-import numpy as np
 
 
 def plot_pmsm_results(df: pd.DataFrame):
+    """Plot PMSM simulation results from DataFrame."""
     t = df["t"]
 
     fig = plt.figure(figsize=(14, 10))

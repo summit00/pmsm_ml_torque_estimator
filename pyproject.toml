@@ -1,0 +1,190 @@
+# ========== DEPENDENCIES ==========
+[project]
+name = "pmsm-ml-angle-estimator"
+version = "0.1.0"
+description = "PMSM Angle Estimation with Machine Learning"
+requires-python = ">=3.9"
+
+dependencies = [
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "scikit-learn",
+    "torch",
+    "ruff",
+    "mypy",
+    "pylint",
+    "pytest",
+    "jupyter",
+]
+
+# ========== RUFF CONFIG ==========
+[tool.ruff]
+# Industry standard error selection
+select = [
+    "E",   # pycodestyle errors
+    "F",   # Pyflakes
+    "B",   # flake8-bugbear (security/correctness)
+    "I",   # isort (import sorting)
+    "UP",  # pyupgrade (modern Python)
+    "C9",  # McCabe complexity
+    "N",   # naming conventions
+]
+
+# Allow legacy/compatibility patterns
+ignore = [
+    "T201",  # print found (allowed in scripts)
+    "C901",  # McCabe complexity - set realistic threshold below
+    "B008",  # Do not perform function calls in argument defaults
+]
+
+# Auto-fix everything fixable
+fixable = ["ALL"]
+
+# Industry standard line length
+line-length = 120
+
+# Standard exclusions
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "*.pyc",
+    "build",
+    "dist",
+]
+
+# Maximum cyclomatic complexity (industry standard: 10-15)
+max-complexity = 12
+
+# ========== IMPORT SORTING ==========
+[tool.ruff.isort]
+known-first-party = ["src"]
+lines-between-types = 1
+combine-as-imports = true
+force-sort-within-sections = true
+
+# ========== PER-FILE RULES ==========
+[tool.ruff.per-file-ignores]
+# Allow unused imports in __init__.py
+"__init__.py" = ["F401"]
+
+# Test-specific allowances
+"tests/*" = [
+    "S101",      # Use of assert (OK in tests)
+    "PLR2004",   # Magic values (OK in test data)
+    "ARG005",    # Unused arguments in test fixtures
+]
+
+# Notebooks get more flexibility
+"notebooks/*.py" = ["E402"]  # Imports not at top
+
+# ========== MYPY CONFIG ==========
+[tool.mypy]
+python_version = "3.9"
+
+# Core type safety rules
+warn_return_any = true
+warn_unused_configs = true
+disallow_incomplete_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+
+# Practical settings for data science
+ignore_missing_imports = true
+show_error_codes = true
+
+# Files to check
+files = [
+    "src/**/*.py",
+    "tests/**/*.py",
+]
+
+# ========== PYLINT DESIGN CONFIG ==========
+[tool.pylint.'DESIGN']
+# Industry standard thresholds
+max-args = 7           # Functions should have ≤7 parameters
+max-locals = 15        # Functions should have ≤15 local variables  
+max-returns = 6        # Functions should have ≤6 return points
+max-branches = 12      # Functions should have ≤12 branches
+max-statements = 50    # Functions should have ≤50 statements
+max-attributes = 10    # Classes should have ≤10 attributes
+min-public-methods = 1 # Classes should have ≥1 public method
+
+[tool.pylint.'MESSAGES CONTROL']
+# Essential checks to disable
+disable = [
+    # Documentation - required for production but optional for research
+    "missing-module-docstring",
+    "missing-class-docstring",
+    "missing-function-docstring",
+    
+    # Design - these are covered by Ruff's complexity checks
+    "too-many-arguments",
+    "too-many-locals",
+    "too-many-branches",
+    "too-many-statements",
+    "too-few-public-methods",
+    
+    # False positives in data science
+    "no-self-use",      # Methods might be public API
+    "attribute-defined-outside-init",  # Common in ML setup
+]
+
+# Enable valuable checks
+enable = [
+    "useless-return",       # Detect unnecessary return None
+    "using-constant-test",  # if True/False/None
+    "unnecessary-pass",     # Empty blocks
+]
+
+[tool.pylint.'BASIC']
+# Good variable names (industry conventions)
+good-names = [
+    # Single letters for math/physics
+    "i", "j", "k", "m", "n",  # indices/counts
+    "x", "y", "z",            # coordinates
+    "t",                      # time
+    "f", "g", "h",            # functions in math
+    "v",                      # velocity/voltage
+    "ω", "theta", "phi",      # angles
+    
+    # Common abbreviations
+    "df",                     # pandas DataFrame
+    "idx",                    # index
+    "tmp",                    # temporary
+    "msg",                    # message
+    "err",                    # error
+    "cfg",                    # config
+    
+    # Domain specific (PMSM/ML)
+    "i_d", "i_q", "v_d", "v_q",  # motor control
+    "psi", "tau", "omega",       # physics
+    "X_train", "y_pred",         # ML
+]
+
+# ========== PROJECT SPECIFIC ==========
+# Allow slightly more complex patterns in simulation code
+[[tool.mypy.overrides]]
+module = [
+    "src.simulation.*",
+    "src.control.*",
+]
+disallow_untyped_defs = false  # More flexible in simulation code
+
+# Strict typing for ML/core logic
+[[tool.mypy.overrides]]
+module = [
+    "src.ml.*",
+    "src.core.*",
+]
+disallow_untyped_defs = true  # Strict in core logic
+
+# Test files are more flexible
+[[tool.mypy.overrides]]
+module = [
+    "tests.*",
+    "test_*",
+]
+ignore_missing_imports = true
+disallow_untyped_defs = false

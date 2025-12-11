@@ -1,4 +1,4 @@
-# foc_controller.py
+"""FOC current controller in dq frame with decoupling."""
 import numpy as np
 from pidController import PIDController
 
@@ -30,6 +30,7 @@ class FocCurrentController:
         # voltage limit:
         v_limit: float = 50.0,
     ):
+        """Initialize FOC current controller."""
         self.dt = dt
         self.v_limit = v_limit
 
@@ -46,7 +47,6 @@ class FocCurrentController:
         self.pid_d.set_output_limits(-v_limit, v_limit)
         self.pid_q.set_output_limits(-v_limit, v_limit)
 
-    # ------- autotuning helpers -------
     def get_params(self):
         """Return gains as a flat numpy array [kp_d, ki_d, kp_q, ki_q]."""
         return np.array([
@@ -65,6 +65,7 @@ class FocCurrentController:
         self.pid_q.ki = theta[3]
 
     def reset(self):
+        """Reset internal states of the controller."""
         self.pid_d.reset()
         self.pid_q.reset()
 
